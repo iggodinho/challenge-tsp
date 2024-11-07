@@ -1,0 +1,89 @@
+<!-- flight_search/templates/flight_search/selection.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejador de Viagem</title>
+    <link rel="stylesheet" href="{% static 'flight_search/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="title">Você sonha, nós planejamos. Gere seu itinerário de viagem agora.</div>
+
+        <form method="post" action="{% url 'flight_selection' %}">
+            {% csrf_token %}
+            <div class="form-section">
+                <label for="origem">Origem</label>
+                <select id="origem" name="origem" required onchange="atualizarOpcoes()">
+                    <option value="">Escolha a cidade de origem</option>
+                    {% for city, code in aeroporto.items %}
+                        <option value="{{ city }}">{{ city }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-section">
+                <label for="numDestinos">Destinos Intermediários:</label>
+                <select id="numDestinos" name="numDestinos" onchange="mostrarDestinos()" required>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+
+            <div id="destinos-container"></div>
+
+            <button class="generate-btn" type="submit">Gerar Itinerário</button>
+        </form>
+    </div>
+
+    <script>
+        function mostrarDestinos() {
+            const numDestinos = parseInt(document.getElementById("numDestinos").value);
+            const destinosContainer = document.getElementById("destinos-container");
+            destinosContainer.innerHTML = "";
+
+            for (let i = 1; i <= numDestinos; i++) {
+                const destinoSection = document.createElement("div");
+                destinoSection.className = "form-section";
+
+                destinoSection.innerHTML = `
+                    <label>Destino Intermediário ${i}</label>
+                    <select name="destino-${i}" required onchange="atualizarOpcoes()">
+                        <option value="">Escolha a cidade de destino</option>
+                        {% for city, code in aeroporto.items %}
+                            <option value="{{ city }}">{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                    <label>Data de Partida</label>
+                    <input type="date" name="data-partida-${i}" required>
+                `;
+                
+                destinosContainer.appendChild(destinoSection);
+            }
+
+            atualizarOpcoes();
+        }
+
+        function atualizarOpcoes() {
+            const todasCidades = Array.from(document.querySelectorAll('#origem, [name^="destino-"]'));
+            const cidadesSelecionadas = todasCidades
+                .map(select => select.value)
+                .filter(value => value);  // Filtra valores não vazios
+
+            todasCidades.forEach(select => {
+                Array.from(select.options).forEach(option => {
+                    if (option.value && cidadesSelecionadas.includes(option.value) && option.value !== select.value) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

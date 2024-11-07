@@ -1,0 +1,55 @@
+<!-- flight_search/templates/flight_search/results.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados do Itinerário</title>
+    <link rel="stylesheet" href="{% static 'flight_search/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Itinerário de Viagem</h2>
+
+        {% for result in results %}
+    <h3>Origem: {{ result.origem }} -> Destino: {{ result.destino }}</h3>
+    <p><strong>Data de Partida:</strong> {{ result.data_partida }}</p>
+
+    {% if result.menor_emissao %}
+    <div class="trip-info">
+        <strong>Opção com menor emissão de CO₂:</strong><br>
+        Voo: {{ result.menor_emissao.flight_number }}<br>
+        Emissão de CO₂: {{ result.menor_emissao.emissao_co2 }} gramas<br>
+        Preço: €{{ result.menor_emissao.preco }}<br>
+        Duração Total: {{ result.menor_emissao.total_duration }} minutos
+    </div>
+    {% endif %}
+
+    {% if result.mais_barato %}
+    <div class="trip-info">
+        <strong>Opção mais barata:</strong><br>
+        Voo: {{ result.mais_barato.flight_number }}<br>
+        Emissão de CO₂: {{ result.mais_barato.emissao_co2 }} gramas<br>
+        Preço: €{{ result.mais_barato.preco }}<br>
+        Duração Total: {{ result.mais_barato.total_duration }} minutos
+    </div>
+    {% endif %}
+
+    {% if result.mais_rapido %}
+    <div class="trip-info">
+        <strong>Opção mais rápida:</strong><br>
+        Voo: {{ result.mais_rapido.flight_number }}<br>
+        Emissão de CO₂: {{ result.mais_rapido.emissao_co2 }} gramas<br>
+        Preço: €{{ result.mais_rapido.preco }}<br>
+        Duração Total: {{ result.mais_rapido.total_duration }} minutos
+    </div>
+    {% endif %}
+
+    <hr>
+{% endfor %}
+        
+        <button onclick="window.history.back()">Voltar</button>
+    </div>
+</body>
+</html>
